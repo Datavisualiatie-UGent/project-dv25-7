@@ -30,9 +30,18 @@ def top_winners(limit: int = 10):
             winners[game.headers["White"]]["total_wins"] += 1
 
     # calculate win rate
+    winners_list = []
     for key in winners:
-        winners[key]["win_rate"] = winners[key]["total_wins"] / winners[key]["games"]
-
+        winners_list.append({
+            "player": key,
+            "total_wins": winners[key]["total_wins"],
+            "white_wins": winners[key]["white_wins"],
+            "black_wins": winners[key]["black_wins"],
+            "games": winners[key]["games"],
+            "win_rate": winners[key]["total_wins"] / winners[key]["games"],
+        })
+        # winners[key]["win_rate"] = winners[key]["total_wins"] / winners[key]["games"]
+    return winners_list
     return list(sorted(winners.items(), key=lambda x: x[1]["total_wins"], reverse=True))[:limit]
 
 def main():

@@ -20,7 +20,8 @@ def top_first_moves():
             move = moves[0].uci()
             first_moves[move]["count"] += 1
 
-    return first_moves
+    move_list = [{"move": move, "count": first_moves[move]["count"]} for move, _ in first_moves.items()]
+    return move_list
 
 
 def main():

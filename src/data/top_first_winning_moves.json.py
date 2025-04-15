@@ -26,7 +26,13 @@ def top_first_winning_moves():
             else:
                 first_moves[moves[1].uci()]["count"] += 1
                 first_moves[moves[1].uci()]["previous"] = moves[0].uci()
-    return first_moves
+    movie_list = []
+    for move, _ in first_moves.items():
+        if "previous" in first_moves[move].keys():
+            movie_list.append({"move": move, "count": first_moves[move]["count"], "previous": first_moves[move]["previous"]})
+        else:
+            movie_list.append({"move": move, "count": first_moves[move]["count"]})
+    return movie_list
 
 
 def main():
