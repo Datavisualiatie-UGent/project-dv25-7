@@ -1,5 +1,4 @@
 import * as Plot from "npm:@observablehq/plot";
-import {hoveredSquare} from "../state/writable.js";
 
 function get_piece(source) {
     const file = source.slice(0, 1).toLowerCase();
@@ -86,10 +85,6 @@ export function plot_chessboard(data) {
         "King": "♔"
     };
 
-    let hovered = "";
-    hoveredSquare.subscribe(v => {
-        hovered = v;
-    });
 
     return Plot.plot({
         width: 600,
