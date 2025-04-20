@@ -4,17 +4,19 @@
 ## Most popular moves
 Most popular first moves.
 ```js
-import {plot_chessboard} from "./components/opening_heatmap.js";
+import {opening_board} from "./components/opening_heatmap.js";
 ```
 
-
+```js
+opening_board([])
+```
 
 ```js
 const top_moves = await FileAttachment("./data/top_first_moves.json").json();
 ```
 
 ```js
-plot_chessboard(top_moves)
+opening_board(top_moves)
 ```
 
 ## Most winning first moves
@@ -25,7 +27,7 @@ const top_winner_moves = await FileAttachment("./data/top_first_winning_moves.js
 ```
 
 ```js
-plot_chessboard(top_winner_moves)
+opening_board(top_winner_moves)
 ```
 
 ## Legends of chess
@@ -48,16 +50,42 @@ const color = Plot.scale({
 
 ```js
 function launchTimeline(data, {width} = {}) {
-  return Plot.plot({
-    title: "Most succesfull players.",
-    width,
-    height: 300,
-    y: {grid: true, label: "players"},
-    marks: [
-        Plot.barX(data, {x: "games", y: "player", fill: "steelblue", tip: true})
+    const sorted_winners = [...data].sort((a, b) => {
+        const total_a = a.white_wins + a.black_wins;
+        const total_b = b.white_wins + b.black_wins;
+        
+        if(total_a !== total_b) return total_b - total_a;
 
-    ]
-  });
+        if(a.white_wins !== b.white_wins) return b.white_wins - a.white_wins;
+        return b.black_wins - a.black_wins;
+    })
+    const player_order = sorted_winners.map(d => d.player)
+    
+    const stackedData = sorted_winners.flatMap(d => [
+        { player: d.player, wins: d.white_wins, type: "White Wins", winrate: d.win_rate},
+        { player: d.player, wins: d.black_wins, type: "Black Wins", winrate: d.win_rate }
+    ]);
+    
+    return Plot.plot({
+        title: "Most succesfull players.",
+        width,
+        height: 600,
+        marginLeft: 100,
+        x: {
+            label: "wins",
+            tickFormat: d => Number.isInteger(d) ? d : null
+        },
+        y: {grid: true, label: null, domain: player_order},
+        color: {
+            legend: true, 
+            type: "ordinal", 
+            domain: ["White Wins", "Black Wins"], 
+            range: ["#ffffff", "#333333"] // You can tweak these
+        },
+        marks: [
+            Plot.barX(stackedData, {x: "wins", y: "player", fill: "type", tip: true})
+        ]
+    });
 }
 ```
 
