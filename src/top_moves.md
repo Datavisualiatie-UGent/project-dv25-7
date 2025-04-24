@@ -5,10 +5,45 @@
 Most popular first moves.
 ```js
 import {opening_board} from "./components/opening_heatmap.js";
+import {counter_board} from "./components/counter_moves_heatmap.js"
 ```
 
 ```js
-opening_board([])
+counter_board([])
+```
+
+```js
+function svg() {
+  const svg = html`<svg id = "svg"></svg>`
+  const container = d3.select(svg)
+  
+  container.append("circle")
+    .attr("r", 50)
+    .attr("fill", "cornflowerblue")
+    .attr("stroke", "black")
+    .attr("cx", 300)
+    .attr("cy",150)
+    .on("click",function(){
+      const target = d3.select(this)
+      const currentColor = target.attr("fill")
+      if(currentColor == "cornflowerblue"){
+         target.attr("fill", "tomato")
+      }else{
+          target.attr("fill","cornflowerblue")
+      }
+    })
+  return svg
+}
+
+svg()
+
+```
+```js
+const para = document.getElementsByClassName("square");
+
+para.onpointerdown = (event) => {
+  console.log("Pointer down event");
+};
 ```
 
 ```js

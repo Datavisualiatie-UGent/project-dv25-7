@@ -41,14 +41,14 @@ export function opening_board(data){
     }).filter(d => d.count > 0)
 
     const plot = plot_chessboard(originData.concat(destData))
-    console.log("Helloo")
     plot.color = {
         legend: true,
         type: "ordinal",
         domain: ["Start position", "End position"],
         range: ["red", "green"],
     }
-    const lastPlot = plot.marks.pop()
+    const piecesPlot = plot.marks.pop()
+
     plot.marks.push(Plot.rect(originData, {
         x: "file",
         y: "rank",
@@ -71,6 +71,6 @@ export function opening_board(data){
         fontSize: 20,
         dy: 4
     }))
-    plot.marks.push(lastPlot)
+    plot.marks.push(piecesPlot)
     return Plot.plot(plot)
 }

@@ -1,4 +1,5 @@
 import * as Plot from "npm:@observablehq/plot";
+import * as d3 from "d3";
 
 export function get_piece(source) {
     const file = source.slice(0, 1).toLowerCase();
@@ -32,7 +33,13 @@ export const allSquares = [];
 let white = false;
 for (let r of ranks) {
     for (let f of files) {
-        allSquares.push({file: f, rank: r, white: white, symbol: get_piece(f + r)});
+        let player;
+        if(r <= 2){
+            player = 'white';
+        } else if(r >= 7){
+            player = 'black';
+        }
+        allSquares.push({file: f, rank: r, white: white, symbol: get_piece(f + r), player: player});
         white = !white;
     }
     white = !white;
@@ -47,9 +54,12 @@ export const pieces = {
     "King": "♔"
 };
 
+function ownerFigure(g) {
+  const svg = g.ownerSVGElement;
+  return svg?.parentElement?.nodeName === "FIGURE" ? svg.parentElement : svg;
+}
 
-export function plot_chessboard(data) {
-    console.log(data)
+export function plot_chessboard(data, board=allSquares.slice()) {
     return {
         width: 600,
         height: 600,
@@ -57,6 +67,7 @@ export function plot_chessboard(data) {
         marginRight: 20,
         marginBottom: 50,
         marginLeft: 50,
+        board: board,
         x: {
             domain: files,
             label: null
@@ -67,7 +78,7 @@ export function plot_chessboard(data) {
             label: null
         },
         marks: [
-            Plot.rect(allSquares, {
+            Plot.rect(board, {
                 x: "file",
                 y: "rank",
                 text: "symbol",
@@ -75,40 +86,17 @@ export function plot_chessboard(data) {
                 fill: d => (data.find(e => d.file === e.file && d.rank === e.rank)) ? "#ffffff" : (d.white ? "#dedede" : "#b4b4b4"),
                 title: d => "No first move with this position.",
                 dx: d => d.dx,
-                dy: d => d.dy
+                dy: d => d.dy,
             }),
-            // Plot.rect(originData, {
-            //     x: "file",
-            //     y: "rank",
-            //     fillOpacity: d => d.count,
-            //     title: d => `${get_piece(d.file + d.rank)} moves to ${d.to} ${d.count} times.`,
-            //     fill: "type",
-            // }),
-            // Plot.rect(destData, {
-            //     x: "file",
-            //     y: "rank",
-            //     fillOpacity: d => d.count,
-            //     title: d => `${get_piece(d.from)} moved from ${d.from} ${d.count} times.`,
-            //     fill: "type",
-            // }),
-            // Plot.text(destData, {
-            //     x: "file",
-            //     y: "rank",
-            //     text: d => d.count > 0 ? d.count : "",
-            //     fill: "black",
-            //     fontSize: 20,
-            //     dy: 4
-            // }),
-            Plot.text(allSquares, {
+            Plot.text(board, {
                 x: "file",
                 y: "rank",
                 text: d => pieces[d.symbol],
                 fontSize: 40,
-                fill: d => d.rank < 3 ? "white" : "black",
+                fill: d => d.player,
                 textAnchor: "middle",
-                dy: 5
+                dy: 5,
             }),
-
         ],
     };
 }
