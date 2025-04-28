@@ -6,8 +6,22 @@ Most popular first moves.
 ```js
 import {opening_board} from "./components/opening_heatmap.js";
 import {counter_board} from "./components/counter_moves_heatmap.js"
+import {plot_chessboard} from "./components/chessboard_logic.js"
+import {moves_explorer} from "./components/moves_explorer_heatmap.js"
+
 ```
 
+```js
+const game_tree = await FileAttachment("./data/game_tree.json").json();
+```
+
+### Moves explorer
+```js
+moves_explorer(game_tree)
+```
+
+
+### Counter board?
 ```js
 counter_board([])
 ```
@@ -50,6 +64,7 @@ para.onpointerdown = (event) => {
 const top_moves = await FileAttachment("./data/top_first_moves.json").json();
 ```
 
+### Board with top moves
 ```js
 opening_board(top_moves)
 ```

@@ -1,27 +1,20 @@
 import json
+import os
 
 import chess.pgn
-from chess import Board
+from chess import Board, Move
 
-DATASET_PATH = "dataset/dataset.pgn"
+TOP_MOVES_CACHE = "dataset/top_moves_cache.csv"
 
 
 def top_first_moves():
-    pgn = open(DATASET_PATH)
-    first_moves = {}
-    b = Board()
-    first_moves = {m.uci(): {"count": 0} for m in b.legal_moves}
-    # print("processing games")
-    counter = 0
-    while (game := chess.pgn.read_game(pgn)) is not None and counter < 20:
-        counter += 1
-        moves = list(game.mainline_moves())
-        if len(moves) > 0:
-            move = moves[0].uci()
-            first_moves[move]["count"] += 1
+    with open(TOP_MOVES_CACHE, "r") as f:
+        f.readline() # skip the header
+        lines = map(lambda l: l.strip().split(","), f.readlines())
 
-    move_list = [{"move": move, "count": first_moves[move]["count"]} for move, _ in first_moves.items()]
-    return move_list
+        move_list = [{"move": move, "count": count} for move, count in lines]
+
+        return move_list
 
 
 def main():
