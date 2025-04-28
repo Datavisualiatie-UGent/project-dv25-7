@@ -30,16 +30,33 @@ export function opening_board(data){
         return acc
     }, {}))
 
-    const destData = data.map(d => {
+    let destData = data.map(d => {
         return {
             file: d.move.slice(2, 3).toUpperCase(),
             rank: +d.move.slice(3, 4),
-            from: d.move.slice(0, 2).toUpperCase(),
+            from: [d.move.slice(0, 2).toUpperCase()],
             move: d.move,
             count: d.count,
             type: "End position"
         }
     }).filter(d => d.count > 0)
+
+    destData = Object.values(destData.reduce((acc, curr) => {
+        const key = `${curr.file}_${curr.rank}`;
+        if (acc[key]) {
+            acc[key].count += curr.count;
+            acc[key].from.push(...curr.from)
+        } else {
+            acc[key] = {
+                file: curr.file,
+                rank: curr.rank,
+                from: curr.from,
+                count: curr.count,
+                type: "End position"
+            }
+        }
+        return acc
+    }, {}))
 
     const plot = plot_chessboard(originData.concat(destData))
     plot.color = {
@@ -61,7 +78,7 @@ export function opening_board(data){
         x: "file",
         y: "rank",
         fillOpacity: d => d.count,
-        title: d => `${get_piece(d.from)} moved from ${d.from} ${d.count} times.`,
+        title: d => `Moved from ${d.from} ${d.count} times.`,
         fill: "type",
     }))
     plot.marks.push(Plot.text(destData, {
