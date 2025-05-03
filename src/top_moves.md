@@ -1,72 +1,63 @@
 # Top moves
 
-
-## Most popular moves
-Most popular first moves.
 ```js
-import {opening_board} from "./components/opening_heatmap.js";
+import {opening_board} from "./components/opening_heatmap_2.js";
 import {counter_board} from "./components/counter_moves_heatmap.js"
 import {plot_chessboard} from "./components/chessboard_logic.js"
 import {moves_explorer} from "./components/moves_explorer_heatmap.js"
-
+import {colorLegend} from "./components/colorLegend.js"
+import { buttonCTA } from './components/button.js';
 ```
 
 ```js
 const game_tree = await FileAttachment("./data/game_tree.json").json();
 ```
 
-### Moves explorer
+## Moves explorer
 ```js
-moves_explorer(game_tree)
+const startcolor = colorLegend({
+  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
+  title: "Start position move count"
+})
+const endcolor = colorLegend({
+    colorScale: d3.interpolateOranges,
+    title: "End position move count"
+})
 ```
 
 
-### Counter board?
-```js
-counter_board([])
-```
+<div class="grid grid-cols-2" style="max-width: 800px">
+    <div>
+        ${startcolor}
+    </div>
+    <div>
+        ${endcolor}
+    </div>
+</div>
+
+<div id="explorer-container"></div>
 
 ```js
-function svg() {
-  const svg = html`<svg id = "svg"></svg>`
-  const container = d3.select(svg)
-  
-  container.append("circle")
-    .attr("r", 50)
-    .attr("fill", "cornflowerblue")
-    .attr("stroke", "black")
-    .attr("cx", 300)
-    .attr("cy",150)
-    .on("click",function(){
-      const target = d3.select(this)
-      const currentColor = target.attr("fill")
-      if(currentColor == "cornflowerblue"){
-         target.attr("fill", "tomato")
-      }else{
-          target.attr("fill","cornflowerblue")
-      }
-    })
-  return svg
-}
-
-svg()
-
-```
-```js
-const para = document.getElementsByClassName("square");
-
-para.onpointerdown = (event) => {
-  console.log("Pointer down event");
-};
+const container = document.getElementById("explorer-container");
+let explorerPlot = html`<div>`;
+let buttonContainer = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
+const undoButton = buttonCTA("Undo last move", "undo", "#4269D0");
+const resetButton = buttonCTA("Reset board", "reset", "#4269D0");
+container.appendChild(explorerPlot)
+container.appendChild(buttonContainer)
+buttonContainer.appendChild(undoButton)
+buttonContainer.appendChild(resetButton)
+explorerPlot.replaceWith(moves_explorer(game_tree))
 ```
 
+
+[//]: # (### Board with top moves)
 ```js
 const top_moves = await FileAttachment("./data/top_first_moves.json").json();
 ```
 
-### Board with top moves
 ```js
-opening_board(top_moves)
+// opening_board(top_moves)
 ```
 
 ## Most winning first moves
@@ -77,7 +68,27 @@ const top_winner_moves = await FileAttachment("./data/top_first_winning_moves.js
 ```
 
 ```js
-opening_board(top_winner_moves)
+const startcolor2 = colorLegend({
+  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
+  title: "Start position move count"
+})
+const endcolor2 = colorLegend({
+    colorScale: d3.interpolateOranges,
+    title: "End position move count"
+})
+```
+
+<div class="grid grid-cols-2" style="max-width: 800px">
+    <div> 
+        ${startcolor2}
+    </div>
+    <div>
+        ${endcolor2}
+    </div>
+</div>
+
+```js
+Plot.plot(opening_board(top_winner_moves))
 ```
 
 ## Legends of chess
@@ -99,7 +110,7 @@ const color = Plot.scale({
 ```
 
 ```js
-function launchTimeline(data, {width} = {}) {
+function legendChart(data, {width} = {}) {
     const sorted_winners = [...data].sort((a, b) => {
         const total_a = a.white_wins + a.black_wins;
         const total_b = b.white_wins + b.black_wins;
@@ -141,6 +152,6 @@ function launchTimeline(data, {width} = {}) {
 
 <div class="grid grid-cols-1">
   <div class="card">
-    ${resize((width) => launchTimeline(winners, {width}))}
+    ${resize((width) => legendChart(winners, {width}))}
   </div>
 </div>

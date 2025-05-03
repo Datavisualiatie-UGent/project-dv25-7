@@ -1,8 +1,11 @@
 import * as Plot from "npm:@observablehq/plot";
 import {get_piece, plot_chessboard} from "./chessboard_logic.js"
+import * as d3 from "npm:d3-scale-chromatic";
+
+const startColor = t => d3.interpolateBlues(0.2 + t * 0.8);      // for Start position
+const endColor = d3.interpolateOranges;      // for End position
 
 export function opening_board(data){
-    console.log("opening_board", data);
     let originData = data.map(d => {
         return {
             file: d.move.slice(0, 1).toUpperCase(),
@@ -58,28 +61,25 @@ export function opening_board(data){
         return acc
     }, {}))
 
+    const maxStart = Math.max(...originData.map(d => d.count));
+    const maxEnd = Math.max(...destData.map(d => d.count));
+    originData.forEach(d => d.color = startColor(d.count / maxStart));
+    destData.forEach(d => d.color = endColor(d.count / maxEnd));
+
     const plot = plot_chessboard(originData.concat(destData))
-    plot.color = {
-        legend: true,
-        type: "ordinal",
-        domain: ["Start position", "End position"],
-        range: ["red", "green"],
-    }
     const piecesPlot = plot.marks.pop()
 
     plot.marks.push(Plot.rect(originData, {
         x: "file",
         y: "rank",
-        fillOpacity: d => d.count,
+        fill: d => d.color,
         title: d => `${get_piece(d.file + d.rank)} moves to ${d.to} ${d.count} times.`,
-        fill: "type",
     }))
     plot.marks.push(Plot.rect(destData, {
         x: "file",
         y: "rank",
-        fillOpacity: d => d.count,
+        fill: d => d.color,
         title: d => `Moved from ${d.from} ${d.count} times.`,
-        fill: "type",
     }))
     plot.marks.push(Plot.text(destData, {
         x: "file",

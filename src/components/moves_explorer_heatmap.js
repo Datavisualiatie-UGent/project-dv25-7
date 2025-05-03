@@ -1,10 +1,10 @@
 import * as Plot from "npm:@observablehq/plot";
-import {plot_chessboard, files, pieces} from "./chessboard_logic.js"
+import { files, pieces, ranks, get_piece} from "./chessboard_logic.js"
 import * as d3 from "d3";
 import {opening_board} from "./opening_heatmap_2.js";
 
 function find_square(square, file, rank){
-    return square.file === file && square.rank === rank;
+    return square.file.toLowerCase() === file.toLowerCase() && square.rank === rank;
 }
 
 function possible_moves(board, file, rank){
@@ -209,16 +209,63 @@ let container;
 
 export function moves_explorer(move_tree){
     let possible_squares = []
+    let history = []
     let origin_square;
     let player = 'white';
     let current_move = move_tree;
+    let plot = opening_board(current_move)
+    let board = plot.board
 
-    console.log("move tree", move_tree);
+    document.getElementById("reset").onclick = () => {
+        if(history.length === 0){
+            return;
+        }
+        possible_squares = [];
+        origin_square = null;
+        player = 'white';
+        current_move = move_tree;
+        history = [];
+        for (let r of ranks) {
+            for (let f of files) {
+                let player;
+                if(r <= 2){
+                    player = 'white';
+                } else if(r >= 7){
+                    player = 'black';
+                }
+                const el = board.find(sq => find_square(sq, f, r));
+                el.player = player;
+                el.symbol = get_piece(f + r);
+            }
+        }
+        renderPlot()
+    }
+
+
+    document.getElementById("undo").onclick = () => {
+        if(history.length === 0){
+            return;
+        }
+        origin_square = null;
+        possible_squares = [];
+        player = player === 'black' ? "white" : "black";
+        const last_move = history.pop();
+        current_move = last_move.current_move;
+        const from = last_move.move.slice(2, 4);
+        const to = last_move.move.slice(0, 2);
+        const from_sq = board.find(sq => find_square(sq, from[0], +from[1]));
+        const to_sq = board.find(sq => find_square(sq, to[0], +to[1]));
+        to_sq.symbol = from_sq.symbol;
+        to_sq.player = from_sq.player;
+        from_sq.symbol = null;
+        from_sq.player = null;
+        renderPlot();
+    }
 
 
     function renderPlot(){
-        const plot = opening_board(current_move)
-        const board = plot.board
+        plot = opening_board(current_move)
+        board = plot.board
         const lastPlot = plot.marks.pop()
         const newPlot = Plot.text(plot.board, {
             x: "file",
@@ -269,6 +316,7 @@ export function moves_explorer(move_tree){
                       board_square.player = origin_square.player;
 
                       const move_notation = origin_square.file.toLowerCase() + origin_square.rank + board_square.file.toLowerCase() + board_square.rank;
+                      history.push({move: move_notation, current_move: current_move})
                       current_move = current_move.find(m => m.move === move_notation).next_moves;
 
                       origin_square.symbol = null;

@@ -2,8 +2,6 @@ import * as Plot from "npm:@observablehq/plot";
 import {get_piece, plot_chessboard} from "./chessboard_logic.js"
 
 export function opening_board(data){
-        console.log("opening_board", data);
-
     let originData = data.map(d => {
         return {
             file: d.move.slice(0, 1).toUpperCase(),
