@@ -210,10 +210,11 @@ function possible_moves(board, file, rank) {
     return possible_squares;
 }
 
-let container;
 
-export function moves_explorer(move_tree) {
+export function moves_explorer(move_tree, reset_id = "reset", undo_id = "undo") {
     let possible_squares = [];
+    let container;
+
     let history = [];
     let origin_square;
     let player = 'white';
@@ -222,7 +223,7 @@ export function moves_explorer(move_tree) {
     let board = plot.board;
     let candidate_move = null;
 
-    document.getElementById("reset").onclick = () => {
+    document.getElementById(reset_id).onclick = () => {
         if (history.length === 0) {
             return;
         }
@@ -247,8 +248,7 @@ export function moves_explorer(move_tree) {
         renderPlot()
     }
 
-
-    document.getElementById("undo").onclick = () => {
+    document.getElementById(undo_id).onclick = () => {
         if (history.length === 0) {
             return;
         }
@@ -267,7 +267,6 @@ export function moves_explorer(move_tree) {
         from_sq.player = null;
         renderPlot();
     }
-
 
     function renderPlot() {
         plot = opening_board(current_move)

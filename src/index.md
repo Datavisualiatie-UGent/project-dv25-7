@@ -1,5 +1,5 @@
 # Winning chess as a group effort
-Wouter de Bolle & Jozef Jankaj
+_Wouter de Bolle & Jozef Jankaj_
 
 "Wisdom of the crowd" is a phenomenon observed in statistics and forms a basis of our democratic system. 
 When making decisions that impact millions of people, we do not rely on a single individual or a group of experts making the correct decision:
@@ -20,11 +20,12 @@ import { buttonCTA } from './components/button.js';
 
 ```js
 const game_tree = await FileAttachment("./data/game_tree.json").json();
+const top_winner_moves = await FileAttachment("data/top_first_winning_moves.json").json()
 ```
 
 ## Moves explorer
 
-In this document, we explore an application of this context in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~1M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
+In this document, we explore an application of this phenomenon in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~1M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
 
 
 ```js
@@ -54,26 +55,15 @@ const endcolor = colorLegend({
 const container = document.getElementById("explorer-container");
 let explorerPlot = html`<div>`;
 let buttonContainer = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
-const undoButton = buttonCTA("Undo last move", "undo", "#4269D0");
-const resetButton = buttonCTA("Reset board", "reset", "#4269D0");
 container.appendChild(explorerPlot)
 container.appendChild(buttonContainer)
+const undoButton = buttonCTA("Undo last move", "undo", "#4269D0");
+const resetButton = buttonCTA("Reset board", "reset", "#4269D0");
 buttonContainer.appendChild(undoButton)
 buttonContainer.appendChild(resetButton)
 explorerPlot.replaceWith(moves_explorer(game_tree))
 ```
 
-
-[//]: # (### Board with top moves)
-[//]: # (```js)
-
-[//]: # (const top_moves = await FileAttachment&#40;"./data/top_first_moves.json"&#41;.json&#40;&#41;;)
-
-[//]: # (```)
-
-```js
-// opening_board(top_moves)
-```
 
 ## Most winning first moves
 Below, we show same visualisation, but we have filtered the moves to only those that lead to a win, by either black or white.
@@ -82,58 +72,43 @@ The filter is quite simple: if the move eventually lead to white's win, it is in
 
 While games are not necessarily won or lost in the first 10 moves, they form a basis of the game and are in general the most important moves of the game.
 
-TODO: fix this for deployment, code doesn't use the json file
+```js
+const startcolor2 = colorLegend({
+  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
+  title: "Start position move count"
+})
 
-[//]: # (```js)
+const endcolor2 = colorLegend({
+    colorScale: d3.interpolateOranges,
+    title: "End position move count"
+})
+```
 
-[//]: # (const top_winner_moves = await FileAttachment&#40;"./data/top_first_winning_moves.json"&#41;.json&#40;&#41;)
 
-[//]: # (```)
+<div class="grid grid-cols-2" style="max-width: 800px">
+    <div>
+        ${startcolor2}
+    </div>
+    <div>
+        ${endcolor2}
+    </div>
+</div>
 
-[//]: # ()
-[//]: # (```js)
+<div id="winner-moves"></div>
 
-[//]: # (const startcolor2 = colorLegend&#40;{)
+```js
+const container_win = document.getElementById("winner-moves");
+let explorerPlot_win = html`<div>hello</div>`;
+let buttonContainer_win = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
+const undoButton_win = buttonCTA("Undo last move", "undo_win", "#4269D0");
+const resetButton_win = buttonCTA("Reset board", "reset_win", "#4269D0");
+container_win.appendChild(explorerPlot_win);
+container_win.appendChild(buttonContainer_win);
+buttonContainer_win.appendChild(undoButton_win);
+buttonContainer_win.appendChild(resetButton_win);
+explorerPlot_win.replaceWith(moves_explorer(top_winner_moves, "reset_win", "undo_win"));
+```
 
-[//]: # (  colorScale: t => d3.interpolateBlues&#40;0.2 + t * 0.8&#41;,)
-
-[//]: # (  title: "Start position move count")
-
-[//]: # (}&#41;)
-
-[//]: # (const endcolor2 = colorLegend&#40;{)
-
-[//]: # (    colorScale: d3.interpolateOranges,)
-
-[//]: # (    title: "End position move count")
-
-[//]: # (}&#41;)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (<div class="grid grid-cols-2" style="max-width: 800px">)
-
-[//]: # (    <div> )
-
-[//]: # (        ${startcolor2})
-
-[//]: # (    </div>)
-
-[//]: # (    <div>)
-
-[//]: # (        ${endcolor2})
-
-[//]: # (    </div>)
-
-[//]: # (</div>)
-
-[//]: # ()
-[//]: # (```js)
-
-[//]: # (Plot.plot&#40;opening_board&#40;top_winner_moves&#41;&#41;)
-
-[//]: # (```)
 
 ## Verifying the wisdom
 
