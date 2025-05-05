@@ -1,22 +1,23 @@
 import * as Plot from "npm:@observablehq/plot";
-import { files, pieces, ranks, get_piece} from "./chessboard_logic.js"
+import {files, get_piece, pieces, ranks} from "./chessboard_logic.js"
 import * as d3 from "d3";
 import {opening_board} from "./opening_heatmap_2.js";
 
-function find_square(square, file, rank){
+function find_square(square, file, rank) {
     return square.file.toLowerCase() === file.toLowerCase() && square.rank === rank;
 }
 
-function possible_moves(board, file, rank){
+function possible_moves(board, file, rank) {
     const possible_squares = []
     const current_square = board.find(el => find_square(el, file, rank))
     let f = files.indexOf(file);
     let r = rank;
     let free = true;
-    function check_square(s_f, s_r){
+
+    function check_square(s_f, s_r) {
         const square = board.find(el => find_square(el, s_f, s_r))
-        if(square.symbol){
-            if(square.player !== current_square.player){
+        if (square.symbol) {
+            if (square.player !== current_square.player) {
                 possible_squares.push({...square})
             }
             free = false;
@@ -24,6 +25,7 @@ function possible_moves(board, file, rank){
             possible_squares.push({...square})
         }
     }
+
     switch (current_square.symbol) {
         case "Pawn":
             const player = current_square.player
@@ -201,23 +203,27 @@ function possible_moves(board, file, rank){
         default:
             break;
     }
-    possible_squares.map(el => {el.symbol = current_square.symbol; el.player = current_square.player})
+    possible_squares.map(el => {
+        el.symbol = current_square.symbol;
+        el.player = current_square.player
+    })
     return possible_squares;
 }
 
 let container;
 
-export function moves_explorer(move_tree){
-    let possible_squares = []
-    let history = []
+export function moves_explorer(move_tree) {
+    let possible_squares = [];
+    let history = [];
     let origin_square;
     let player = 'white';
     let current_move = move_tree;
-    let plot = opening_board(current_move)
-    let board = plot.board
+    let plot = opening_board(current_move);
+    let board = plot.board;
+    let candidate_move = null;
 
     document.getElementById("reset").onclick = () => {
-        if(history.length === 0){
+        if (history.length === 0) {
             return;
         }
         possible_squares = [];
@@ -228,9 +234,9 @@ export function moves_explorer(move_tree){
         for (let r of ranks) {
             for (let f of files) {
                 let player;
-                if(r <= 2){
+                if (r <= 2) {
                     player = 'white';
-                } else if(r >= 7){
+                } else if (r >= 7) {
                     player = 'black';
                 }
                 const el = board.find(sq => find_square(sq, f, r));
@@ -243,7 +249,7 @@ export function moves_explorer(move_tree){
 
 
     document.getElementById("undo").onclick = () => {
-        if(history.length === 0){
+        if (history.length === 0) {
             return;
         }
         origin_square = null;
@@ -263,7 +269,7 @@ export function moves_explorer(move_tree){
     }
 
 
-    function renderPlot(){
+    function renderPlot() {
         plot = opening_board(current_move)
         board = plot.board
         const lastPlot = plot.marks.pop()
@@ -280,19 +286,22 @@ export function moves_explorer(move_tree){
                 const children = d3.select(g).selectChildren();
 
                 children
-                  .on("click", function (event, i) {
-                      if(board[i].player === player){
-                          const new_possible_squares = possible_moves(board, board[i].file, board[i].rank);
-                          if(board[i] ===  origin_square){
-                              possible_squares = [];
-                              origin_square = null;
-                          } else {
-                              origin_square = board[i];
-                              possible_squares = new_possible_squares;
-                          }
-                          renderPlot();
-                      }
-                  })
+                    .on("click", function (event, i) {
+                        if (board[i].player === player) {
+                            const new_possible_squares = possible_moves(board, board[i].file, board[i].rank);
+                            if (board[i] === origin_square) {
+                                possible_squares = [];
+                                origin_square = null;
+                            } else {
+                                origin_square = board[i];
+                                possible_squares = new_possible_squares;
+                            }
+
+                            candidate_move = origin_square;
+
+                            renderPlot();
+                        }
+                    })
                 return g;
             }
         })
@@ -310,34 +319,35 @@ export function moves_explorer(move_tree){
                 const children = d3.select(g).selectChildren();
 
                 children
-                  .on("click", function (event, i) {
-                      const board_square = board.find(el => find_square(el, possible_squares[i].file, possible_squares[i].rank))
-                      board_square.symbol = origin_square.symbol;
-                      board_square.player = origin_square.player;
+                    .on("click", function (event, i) {
+                        const board_square = board.find(el => find_square(el, possible_squares[i].file, possible_squares[i].rank))
+                        board_square.symbol = origin_square.symbol;
+                        board_square.player = origin_square.player;
 
-                      const move_notation = origin_square.file.toLowerCase() + origin_square.rank + board_square.file.toLowerCase() + board_square.rank;
-                      history.push({move: move_notation, current_move: current_move})
-                      current_move = current_move.find(m => m.move === move_notation).next_moves;
+                        const move_notation = origin_square.file.toLowerCase() + origin_square.rank + board_square.file.toLowerCase() + board_square.rank;
+                        history.push({move: move_notation, current_move: current_move})
+                        current_move = current_move.find(m => m.move === move_notation).next_moves;
 
-                      origin_square.symbol = null;
-                      origin_square.player = null;
-                      possible_squares = [];
-                      player = player === "white" ? "black" : "white"
-                      renderPlot();
-                  })
+                        origin_square.symbol = null;
+                        origin_square.player = null;
+                        possible_squares = [];
+                        player = player === "white" ? "black" : "white"
+                        renderPlot();
+                    })
                 return g;
             }
         });
 
-        plot.marks.push(newPlot)
-        plot.marks.push(possplot)
-        const plotEl =  Plot.plot(plot)
+        plot.marks.push(newPlot);
+        plot.marks.push(possplot);
+        const plotEl = Plot.plot(plot);
 
-        if(container){
+        if (container) {
             container.replaceWith(plotEl)
         }
         container = plotEl;
-        return container
+        return container;
     }
-    return renderPlot()
+
+    return renderPlot();
 }

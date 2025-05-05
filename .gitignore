@@ -4,3 +4,4 @@ node_modules/
 yarn-error.log
 dataset
 !dataset/README.md
+!dataset/pull.sh
