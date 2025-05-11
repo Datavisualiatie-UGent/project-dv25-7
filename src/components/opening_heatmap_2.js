@@ -5,7 +5,7 @@ import * as d3 from "npm:d3-scale-chromatic";
 const startColor = t => d3.interpolateBlues(0.2 + t * 0.8);      // for Start position
 const endColor = d3.interpolateOranges;      // for End position
 
-export function opening_board(data){
+export function opening_board(data, origin=null){
     let originData = data.map(d => {
         return {
             file: d.move.slice(0, 1).toUpperCase(),
@@ -15,6 +15,11 @@ export function opening_board(data){
             type: "origin"
         }
     }).filter(d => d.count > 0)
+
+    if (origin){
+        originData = originData.filter(d => d.file === origin.slice(0, 1).toUpperCase() && d.rank === +origin.slice(1, 2))
+    }
+
 
     originData = Object.values(originData.reduce((acc, curr) => {
         const key = `${curr.file}_${curr.rank}`;
@@ -43,6 +48,10 @@ export function opening_board(data){
             type: "End position"
         }
     }).filter(d => d.count > 0)
+
+    if (origin){
+        destData = destData.filter(d => d.from.includes(origin.toUpperCase()))
+    }
 
     destData = Object.values(destData.reduce((acc, curr) => {
         const key = `${curr.file}_${curr.rank}`;
