@@ -1,11 +1,11 @@
-# Winning chess as a group effort
+# Winning at chess as a group effort
 _Wouter de Bolle & Jozef Jankaj_
 
-"Wisdom of the crowd" is a phenomenon observed in statistics and forms a basis of our democratic system. 
+"Wisdom of the crowd" is a phenomenon observed in statistics and forms the basis of our democratic system. 
 When making decisions that impact millions of people, we do not rely on a single individual or a group of experts making the correct decision:
 indeed, we take a vote. 
 
-The idea is simple: no one person has all knowledge and perfect perspective on any issue. By averaging out individual preferences, biases and opinions, we reach a consensus that is, more often than not, the best option.
+The idea is simple: no one person has all knowledge and perfect perspective on any issue. By averaging out individual preferences, biases and opinions (aka. the noise), we reach a consensus that is, more often than not, the best option.
 
 
 
@@ -16,6 +16,7 @@ import {plot_chessboard} from "./components/chessboard_logic.js"
 import {moves_explorer} from "./components/moves_explorer_heatmap.js"
 import {colorLegend} from "./components/colorLegend.js"
 import { buttonCTA } from './components/button.js';
+import { stockfish_explorer } from "./components/stockfish_board.js"
 ```
 
 ```js
@@ -116,124 +117,27 @@ The above visualisations only tell us what moves were most favoured by chess pla
 
 However, it is always good to check our intuitions with reality. This visualisation shows again the most favourite moves in a particular position of chess players in July 2016, but this time we show these in function of evaluation of the position by Stockfish, the best chess engine in the world.
 
-\<visualisation\>
+<div class="grid grid-cols-2" style="max-width: 800px">
+    <div>
+        ${startcolor2}
+    </div>
+    <div>
+        ${endcolor2}
+    </div>
+</div>
+
+<div id="stockfish"></div>
 
 
-
-[//]: # (## Legends of chess)
-
-[//]: # (### Most successful players)
-
-[//]: # ()
-[//]: # (```js)
-
-[//]: # (const winners = await FileAttachment&#40;"./data/most_successful_players.json"&#41;.json&#40;&#41;)
-
-[//]: # (display&#40;winners&#41;)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (```js)
-
-[//]: # (const color = Plot.scale&#40;{)
-
-[//]: # (  color: {)
-
-[//]: # (    type: "categorical",)
-
-[//]: # (    domain: d3.groupSort&#40;winners, &#40;D&#41; => -D.length, &#40;d&#41; => d.state&#41;.filter&#40;&#40;d&#41; => d !== "Other"&#41;,)
-
-[//]: # (    unknown: "var&#40;--theme-foreground-muted&#41;")
-
-[//]: # (  })
-
-[//]: # (}&#41;;)
-
-[//]: # (```)
-
-[//]: # (```js)
-
-[//]: # (function legendChart&#40;data, {width} = {}&#41; {)
-
-[//]: # (    const sorted_winners = [...data].sort&#40;&#40;a, b&#41; => {)
-
-[//]: # (        const total_a = a.white_wins + a.black_wins;)
-
-[//]: # (        const total_b = b.white_wins + b.black_wins;)
-
-[//]: # (        )
-[//]: # (        if&#40;total_a !== total_b&#41; return total_b - total_a;)
-
-[//]: # ()
-[//]: # (        if&#40;a.white_wins !== b.white_wins&#41; return b.white_wins - a.white_wins;)
-
-[//]: # (        return b.black_wins - a.black_wins;)
-
-[//]: # (    }&#41;)
-
-[//]: # (    const player_order = sorted_winners.map&#40;d => d.player&#41;)
-
-[//]: # (    )
-[//]: # (    const stackedData = sorted_winners.flatMap&#40;d => [)
-
-[//]: # (        { player: d.player, wins: d.white_wins, type: "White Wins", winrate: d.win_rate},)
-
-[//]: # (        { player: d.player, wins: d.black_wins, type: "Black Wins", winrate: d.win_rate })
-
-[//]: # (    ]&#41;;)
-
-[//]: # (    )
-[//]: # (    return Plot.plot&#40;{)
-
-[//]: # (        title: "Most succesfull players.",)
-
-[//]: # (        width,)
-
-[//]: # (        height: 600,)
-
-[//]: # (        marginLeft: 100,)
-
-[//]: # (        x: {)
-
-[//]: # (            label: "wins",)
-
-[//]: # (            tickFormat: d => Number.isInteger&#40;d&#41; ? d : null)
-
-[//]: # (        },)
-
-[//]: # (        y: {grid: true, label: null, domain: player_order},)
-
-[//]: # (        color: {)
-
-[//]: # (            legend: true, )
-
-[//]: # (            type: "ordinal", )
-
-[//]: # (            domain: ["White Wins", "Black Wins"], )
-
-[//]: # (            range: ["#ffffff", "#333333"] // You can tweak these)
-
-[//]: # (        },)
-
-[//]: # (        marks: [)
-
-[//]: # (            Plot.barX&#40;stackedData, {x: "wins", y: "player", fill: "type", tip: true}&#41;)
-
-[//]: # (        ])
-
-[//]: # (    }&#41;;)
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # (<div class="grid grid-cols-1">)
-
-[//]: # (  <div class="card">)
-
-[//]: # (    ${resize&#40;&#40;width&#41; => legendChart&#40;winners, {width}&#41;&#41;})
-
-[//]: # (  </div>)
-
-[//]: # (</div>)
+```js
+const container_win = document.getElementById("stockfish");
+let explorerPlot_win = html`<div>`;
+let buttonContainer_win_stockfish = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
+const undoButton_win_stockfish = buttonCTA("Undo last move", "undo_win", "#4269D0");
+const resetButton_win_stockfish = buttonCTA("Reset board", "reset_win", "#4269D0");
+container_win.appendChild(explorerPlot_win);
+container_win.appendChild(buttonContainer_win_stockfish);
+buttonContainer_win_stockfish.appendChild(undoButton_win_stockfish);
+buttonContainer_win_stockfish.appendChild(resetButton_win_stockfish);
+explorerPlot_win.replaceWith(await stockfish_explorer(game_tree, "reset_win", "undo_win"));
+```

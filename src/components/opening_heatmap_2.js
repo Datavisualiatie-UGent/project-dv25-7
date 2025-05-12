@@ -5,7 +5,7 @@ import * as d3 from "npm:d3-scale-chromatic";
 const startColor = t => d3.interpolateBlues(0.2 + t * 0.8);      // for Start position
 const endColor = d3.interpolateOranges;      // for End position
 
-export function opening_board(data){
+export function opening_board(data, highlights = {}){
     let originData = data.map(d => {
         return {
             file: d.move.slice(0, 1).toUpperCase(),
@@ -78,7 +78,12 @@ export function opening_board(data){
     plot.marks.push(Plot.rect(destData, {
         x: "file",
         y: "rank",
-        fill: d => d.color,
+        fill: d => {
+            if ((d.file + d.rank).toLowerCase() === highlights.square) {
+                return "gold"
+            }
+            return d.color;
+        },
         title: d => `Moved from ${d.from} ${d.count} times.`,
     }))
     plot.marks.push(Plot.text(destData, {
