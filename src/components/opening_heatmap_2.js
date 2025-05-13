@@ -98,7 +98,8 @@ export function opening_board(data, origin=null, highlights = {}){
     plot.marks.push(Plot.text(destData, {
         x: "file",
         y: "rank",
-        text: d => d.count > 0 ? d.count : "",
+        text: d => d.count > 1000000 ? Math.round(d.count / 1000000) + "M" :
+            d.count > 1000 ? Math.round(d.count / 1000) + "K" : d.count > 0 ? d.count : "",
         fill: "black",
         fontSize: 20,
         dy: 4

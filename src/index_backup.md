@@ -1,4 +1,4 @@
-# Winning at chess as group effort
+# Winning at chess as a group effort
 _Wouter de Bolle & Jozef Jankaj_
 
 "Wisdom of the crowd" is a phenomenon observed in statistics and forms the basis of our democratic system. 
@@ -6,6 +6,8 @@ When making decisions that impact millions of people, we do not rely on a single
 indeed, we take a vote. 
 
 The idea is simple: no one person has all knowledge and perfect perspective on any issue. By averaging out individual preferences, biases and opinions (aka. the noise), we reach a consensus that is, more often than not, the best option.
+
+
 
 ```js
 import {opening_board} from "./components/opening_heatmap_2.js";
@@ -24,7 +26,7 @@ const top_winner_moves = await FileAttachment("data/top_first_winning_moves.json
 
 ## Moves explorer
 
-In this document, we explore an application of this phenomenon in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~2.5M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
+In this document, we explore an application of this phenomenon in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~1M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
 
 
 ```js
@@ -63,6 +65,52 @@ buttonContainer.appendChild(resetButton)
 explorerPlot.replaceWith(moves_explorer(game_tree))
 ```
 
+
+## Most winning first moves
+Below, we show same visualisation, but we have filtered the moves to only those that lead to a win, by either black or white.
+The filter is quite simple: if the move eventually lead to white's win, it is included, and same with black.
+
+
+While games are not necessarily won or lost in the first 10 moves, they form a basis of the game and are in general the most important moves of the game.
+
+```js
+const startcolor2 = colorLegend({
+  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
+  title: "Start position move count"
+})
+
+const endcolor2 = colorLegend({
+    colorScale: d3.interpolateOranges,
+    title: "End position move count"
+})
+```
+
+
+<div class="grid grid-cols-2" style="max-width: 800px">
+    <div>
+        ${startcolor2}
+    </div>
+    <div>
+        ${endcolor2}
+    </div>
+</div>
+
+<div id="winner-moves"></div>
+
+```js
+const container_win = document.getElementById("winner-moves");
+let explorerPlot_win = html`<div>hello</div>`;
+let buttonContainer_win = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
+const undoButton_win = buttonCTA("Undo last move", "undo_win", "#4269D0");
+const resetButton_win = buttonCTA("Reset board", "reset_win", "#4269D0");
+container_win.appendChild(explorerPlot_win);
+container_win.appendChild(buttonContainer_win);
+buttonContainer_win.appendChild(undoButton_win);
+buttonContainer_win.appendChild(resetButton_win);
+explorerPlot_win.replaceWith(moves_explorer(top_winner_moves, "reset_win", "undo_win"));
+```
+
+
 ## Verifying the wisdom
 
 The above visualisations only tell us what moves were most favoured by chess players in the dataset. It is our intuition that these moves are indeed the best moves in the positions, since they're most favoured. 
@@ -79,18 +127,6 @@ However, it is always good to check our intuitions with reality. This visualisat
 </div>
 
 <div id="stockfish"></div>
-
-```js
-const startcolor2 = colorLegend({
-  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
-  title: "Start position move count"
-})
-
-const endcolor2 = colorLegend({
-    colorScale: d3.interpolateOranges,
-    title: "End position move count"
-})
-```
 
 
 ```js

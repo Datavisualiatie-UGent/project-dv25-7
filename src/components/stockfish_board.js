@@ -218,8 +218,6 @@ async function get_stockfish_move(fen) {
         depth: 10
     }))).json();
 
-    console.log(response);
-
     let bestmove = response.bestmove.split(" ")[1];
 
     return {
@@ -301,9 +299,9 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
         renderPlot();
     }
 
+    plot = opening_board(current_move, null, {"square": stockfish_suggestion.square})
     function renderPlot() {
-        console.log("stockfish", stockfish_suggestion);
-        plot = opening_board(current_move, {"square": stockfish_suggestion.square})
+        plot = opening_board(current_move, null, {"square": stockfish_suggestion.square})
         board = plot.board
         const lastPlot = plot.marks.pop()
         const newPlot = Plot.text(plot.board, {
