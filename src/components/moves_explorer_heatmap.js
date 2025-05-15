@@ -219,7 +219,6 @@ export function moves_explorer(move_tree, reset_id = "reset", undo_id = "undo") 
     let origin_square;
     let player = 'white';
     let current_move = move_tree;
-    console.log(current_move)
     let plot = opening_board(current_move);
     let board = plot.board;
     let candidate_move = null;
@@ -264,13 +263,13 @@ export function moves_explorer(move_tree, reset_id = "reset", undo_id = "undo") 
         const to_sq = board.find(sq => find_square(sq, to[0], +to[1]));
         to_sq.symbol = from_sq.symbol;
         to_sq.player = from_sq.player;
-        from_sq.symbol = null;
-        from_sq.player = null;
+        from_sq.symbol = last_move.taken.symbol;
+        from_sq.player = last_move.taken.player;
         renderPlot();
     }
 
-    plot = opening_board(current_move)
     function renderPlot() {
+        plot = opening_board(current_move)
         board = plot.board
         const lastPlot = plot.marks.pop()
         const newPlot = Plot.text(plot.board, {
@@ -327,11 +326,11 @@ export function moves_explorer(move_tree, reset_id = "reset", undo_id = "undo") 
                         const board_square = board.find(el => find_square(el, possible_squares[i].file, possible_squares[i].rank))
                         const move_notation = origin_square.file.toLowerCase() + origin_square.rank + board_square.file.toLowerCase() + board_square.rank;
                         if (current_move.map(el => el.move).includes(move_notation)){
+                            history.push({move: move_notation, current_move: current_move, taken: {symbol: board_square.symbol, player: board_square.player}})
+                            current_move = current_move.find(m => m.move === move_notation).next_moves;
+
                             board_square.symbol = origin_square.symbol;
                             board_square.player = origin_square.player;
-
-                            history.push({move: move_notation, current_move: current_move})
-                            current_move = current_move.find(m => m.move === move_notation).next_moves;
 
                             origin_square.symbol = null;
                             origin_square.player = null;
@@ -346,7 +345,6 @@ export function moves_explorer(move_tree, reset_id = "reset", undo_id = "undo") 
         });
         plot.marks.push(newPlot);
         plot.marks.push(possplot);
-        console.log(plot.marks[3].data)
         const plotEl = Plot.plot(plot);
 
         if (container) {

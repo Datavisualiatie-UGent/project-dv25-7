@@ -7,25 +7,21 @@ indeed, we take a vote.
 
 The idea is simple: no one person has all knowledge and perfect perspective on any issue. By averaging out individual preferences, biases and opinions (aka. the noise), we reach a consensus that is, more often than not, the best option.
 
+# Moves explorer
+
+In this document, we explore an application of this phenomenon in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~2.5M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
+
+
 ```js
-import {opening_board} from "./components/opening_heatmap_2.js";
-import {counter_board} from "./components/counter_moves_heatmap.js"
-import {plot_chessboard} from "./components/chessboard_logic.js"
 import {moves_explorer} from "./components/moves_explorer_heatmap.js"
 import {colorLegend} from "./components/colorLegend.js"
 import { buttonCTA } from './components/button.js';
-import { stockfish_explorer } from "./components/stockfish_board.js"
 ```
 
 ```js
 const game_tree = await FileAttachment("./data/game_tree.json").json();
 const top_winner_moves = await FileAttachment("data/top_first_winning_moves.json").json()
 ```
-
-## Moves explorer
-
-In this document, we explore an application of this phenomenon in terms of chess games. We have taken a dataset of chess games from Lichess July 2016 (~2.5M games) and analyzed it for the most favourite first 10 moves: 5 white moves and 5 black moves. By clicking on different pieces, you can explore how chess players in July 2016 approached this age-old game of wits.
-
 
 ```js
 const startcolor = colorLegend({
@@ -37,7 +33,6 @@ const endcolor = colorLegend({
     title: "End position move count"
 })
 ```
-
 
 <div class="grid grid-cols-2" style="max-width: 800px">
     <div>
@@ -61,47 +56,4 @@ const resetButton = buttonCTA("Reset board", "reset", "#4269D0");
 buttonContainer.appendChild(undoButton)
 buttonContainer.appendChild(resetButton)
 explorerPlot.replaceWith(moves_explorer(game_tree))
-```
-
-## Verifying the wisdom
-
-The above visualisations only tell us what moves were most favoured by chess players in the dataset. It is our intuition that these moves are indeed the best moves in the positions, since they're most favoured. 
-
-However, it is always good to check our intuitions with reality. This visualisation shows again the most favourite moves in a particular position of chess players in July 2016, but this time we show these in function of evaluation of the position by Stockfish, the best chess engine in the world.
-
-<div class="grid grid-cols-2" style="max-width: 800px">
-    <div>
-        ${startcolor2}
-    </div>
-    <div>
-        ${endcolor2}
-    </div>
-</div>
-
-<div id="stockfish"></div>
-
-```js
-const startcolor2 = colorLegend({
-  colorScale: t => d3.interpolateBlues(0.2 + t * 0.8),
-  title: "Start position move count"
-})
-
-const endcolor2 = colorLegend({
-    colorScale: d3.interpolateOranges,
-    title: "End position move count"
-})
-```
-
-
-```js
-const container_win = document.getElementById("stockfish");
-let explorerPlot_win = html`<div>`;
-let buttonContainer_win_stockfish = html`<div style="display: flex; justify-content: center; max-width: 600px; gap: 1em; margin : 1em; padding-bottom: 50px"></div>`
-const undoButton_win_stockfish = buttonCTA("Undo last move", "undo_win", "#4269D0");
-const resetButton_win_stockfish = buttonCTA("Reset board", "reset_win", "#4269D0");
-container_win.appendChild(explorerPlot_win);
-container_win.appendChild(buttonContainer_win_stockfish);
-buttonContainer_win_stockfish.appendChild(undoButton_win_stockfish);
-buttonContainer_win_stockfish.appendChild(resetButton_win_stockfish);
-explorerPlot_win.replaceWith(await stockfish_explorer(game_tree, "reset_win", "undo_win"));
 ```
