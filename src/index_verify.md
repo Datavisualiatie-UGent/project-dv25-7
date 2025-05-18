@@ -2,7 +2,9 @@
 
 The above visualisations only tell us what moves were most favoured by chess players in the dataset. It is our intuition that these moves are indeed the best moves in the positions, since they're most favoured. 
 
-However, it is always good to check our intuitions with reality. This visualisation shows again the most favourite moves in a particular position of chess players in July 2016, but this time we show these in function of evaluation of the position by Stockfish, the best chess engine in the world.
+However, it is always good to check our intuitions with reality. This visualisation shows again the most favourite moves in a particular position of chess players in July 2016, but this time we show also show the best move in the position in gold, as evaluated by Stockfish 17, the best chess engine in the world.
+
+But a few moves into any opening, we can quickly see that the most favoured move is not the best one.
 
 <div class="grid grid-cols-2" style="max-width: 800px">
     <div>
