@@ -245,7 +245,7 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
     }
     let stockfish_suggestion = await get_stockfish_move(chess_board.fen());
 
-    document.getElementById(reset_id).onclick = () => {
+    document.getElementById(reset_id).onclick = async () => {
         if (history.length === 0) {
             return;
         }
@@ -255,7 +255,7 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
         current_move = move_tree;
         history = [];
         chess_board.reset();
-        stockfish_suggestion = get_stockfish_move(chess_board.fen());
+        stockfish_suggestion = await get_stockfish_move(chess_board.fen());
         for (let r of ranks) {
             for (let f of files) {
                 let player;
@@ -272,7 +272,7 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
         renderPlot()
     }
 
-    document.getElementById(undo_id).onclick = () => {
+    document.getElementById(undo_id).onclick = async () => {
         if (history.length === 0) {
             return;
         }
@@ -285,7 +285,7 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
         for (let move of history) {
             chess_board.move(move.move);
         }
-        stockfish_suggestion = get_stockfish_move(chess_board.fen());
+        stockfish_suggestion = await get_stockfish_move(chess_board.fen());
 
         current_move = last_move.current_move;
         const from = last_move.move.slice(2, 4);
@@ -300,6 +300,7 @@ export async function stockfish_explorer(move_tree, reset_id = "reset", undo_id 
     }
 
     plot = opening_board(current_move, null, {"square": stockfish_suggestion.square})
+
     function renderPlot() {
         plot = opening_board(current_move, null, {"square": stockfish_suggestion.square})
         board = plot.board
